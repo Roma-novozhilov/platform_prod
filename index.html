@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Продюсер — трекер запусков</title>
+<meta name="description" content="Трекер экспертов, касаний, созвонов и задач для продюсеров">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="side" aria-label="Навигация">
+    <div class="brand"><span class="logo">▲</span><b>Продюсер</b></div>
+    <nav>
+      <a data-nav="today" href="#today"><span>🏠</span>Сегодня<em class="nav-badge" hidden></em></a>
+      <a data-nav="experts" href="#experts"><span>👥</span>Эксперты</a>
+      <a data-nav="tasks" href="#tasks"><span>✅</span>Задачи</a>
+      <a data-nav="call" href="#call"><span>📞</span>Созвон</a>
+      <a data-nav="scripts" href="#scripts"><span>💬</span>Скрипты</a>
+      <a data-nav="stats" href="#stats"><span>📊</span>Аналитика</a>
+      <a data-nav="path" href="#path"><span>🧭</span>Путь</a>
+      <a data-nav="settings" href="#settings"><span>⚙️</span>Настройки</a>
+    </nav>
+    <button class="btn primary block" data-a="touch">＋ Записать касание</button>
+  </aside>
+  <main id="view" tabindex="-1"></main>
+</div>
+<nav class="bottom" aria-label="Основная навигация">
+  <a data-nav="today" href="#today"><span>🏠</span>Сегодня<em class="nav-badge" hidden></em></a>
+  <a data-nav="experts" href="#experts"><span>👥</span>Эксперты</a>
+  <button class="fab" data-a="touch" aria-label="Записать касание">＋</button>
+  <a data-nav="tasks" href="#tasks"><span>✅</span>Задачи</a>
+  <button data-a="more"><span>☰</span>Ещё</button>
+</nav>
+<div id="modal" class="modal" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="js/content.js"></script>
+<script src="js/core.js"></script>
+<script src="js/views.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
