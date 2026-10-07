@@ -17,6 +17,27 @@ const ring = (val,norm,label) => {
 };
 const bar = (val,max,cls='') => `<div class="bar"><i class="${cls}" style="width:${Math.min(100,Math.round(val/Math.max(max,1)*100))}%"></i></div>`;
 
+/* ---------- Сеть экспертов (фирменная визуализация) ---------- */
+const PHASE_COLOR = {search:'var(--accent)', call:'var(--warn)', work:'var(--accent2)', arch:'var(--muted)'};
+function netViz(){
+  const list = S.experts.filter(e=>e.stage!=='lost').sort((a,b)=>STAGE_ORDER.indexOf(b.stage)-STAGE_ORDER.indexOf(a.stage)).slice(0,16);
+  const W=560,H=300,cx=W/2,cy=H/2, rx=215, ry=105;
+  const nodes = list.map((e,i)=>{
+    const a = -Math.PI/2 + i/list.length*2*Math.PI, ph=stageOf(e.stage).phase;
+    return {e, x:cx+rx*Math.cos(a), y:cy+ry*Math.sin(a), ph, r:8+Math.min(e.touches.length,6)*1.6};
+  });
+  const lines = nodes.map(n=>`<line class="ln ${n.ph==='work'?'w':''}" x1="${cx}" y1="${cy}" x2="${n.x.toFixed(1)}" y2="${n.y.toFixed(1)}" stroke="${PHASE_COLOR[n.ph]}"/>`).join('');
+  const dots = nodes.map(n=>`<a href="#expert/${n.e.id}"><title>${esc(n.e.name)} — ${esc(stageOf(n.e.stage).label)}</title>
+    <circle class="nd" cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${n.r.toFixed(1)}" fill="${PHASE_COLOR[n.ph]}" ${n.ph==='work'?'style="filter:drop-shadow(0 0 6px var(--accent2))"':''}/>
+    <text class="nlbl" x="${n.x.toFixed(1)}" y="${(n.y+n.r+14).toFixed(1)}" text-anchor="middle">${esc((n.e.name||'').split(' ')[0].slice(0,12))}</text></a>`).join('');
+  return `<section class="card net-card"><div class="card-h"><h3>Твоя сеть</h3><a href="#experts" class="link">Все эксперты →</a></div>
+  ${nodes.length?`<svg class="net" viewBox="0 0 ${W} ${H}" role="img" aria-label="Сеть экспертов">${lines}${dots}
+    <circle cx="${cx}" cy="${cy}" r="30" fill="url(#ng)"/><circle cx="${cx}" cy="${cy}" r="11" fill="var(--bg)"/>
+    <defs><linearGradient id="ng" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+    <div class="legend">${[['search','Поиск'],['call','Созвон'],['work','В работе'],['arch','Пауза']].map(x=>`<span><i style="background:${PHASE_COLOR[x[0]]}"></i>${x[1]}</span>`).join('')}<span>размер узла = касания</span></div>`
+   : `<p class="muted">Добавь первого эксперта — он появится узлом в твоей сети.</p>`}</section>`;
+}
+
 /* ---------- Сегодня ---------- */
 function vToday(){
   const t=D.today(), [wf,wt]=periodRange('week'), [mf,mt]=periodRange('month');
@@ -34,8 +55,10 @@ function vToday(){
   const role = ROLES.find(r=>r.id===S.profile.role);
   const pm = programMonth();
 
+  const st=streak();
   return `
-  <header class="page-h"><div><h1>${hello}</h1><p class="muted">${D.fmtDow(t)} · ${role.icon} ${role.name} · месяц ${pm}${pm===1?' (0% наставнику)':' (40% с прибыли)'}</p></div>
+  <div class="brand-m"><img class="logo" src="icons/icon.svg" alt="">NEXUS</div>
+  <header class="page-h"><div><h1>${hello}</h1><p class="muted"><span class="streak ${st>=3?'hot':''}" title="Дней подряд с выполненной нормой">🔥 ${st}</span> ${D.fmtDow(t)} · ${role.icon} ${role.name} · месяц ${pm}${pm===1?' (0% наставнику)':' (40% с прибыли)'}</p></div>
     <div class="row"><button class="btn primary" data-a="touch">＋ Касание</button><button class="btn" data-a="add-expert">＋ Эксперт</button></div></header>
 
   <section class="card">
@@ -46,6 +69,8 @@ function vToday(){
   ${stuck.length?`<section class="card warn"><h3>⚠️ Пора отпускать</h3>
     <p class="muted">После 3 касаний тишина. Не спамим — в паузу на 2–3 месяца.</p>
     ${stuck.map(e=>`<div class="line"><a href="#expert/${e.id}">${esc(e.name)}</a><button class="btn sm" data-a="pause" data-id="${e.id}">В паузу</button></div>`).join('')}</section>`:''}
+
+  ${netViz()}
 
   <section class="card">
     <div class="card-h"><h3>Что сделать сегодня</h3>${chip(String(acts.length+tasks.length))}</div>
@@ -322,7 +347,7 @@ function weeklyReport(){
   const [wf,wt]=periodRange('week'), f=funnel(wf,wt);
   const act=S.experts.filter(e=>['warmup','webinar','sale','repeat'].includes(e.stage));
   const next=S.experts.filter(e=>e.next&&e.stage!=='lost').sort((a,b)=>a.next.date.localeCompare(b.next.date)).slice(0,5);
-  return `Отчёт за неделю ${D.fmt(wf)} — ${D.fmt(wt)}${S.profile.name?' ('+S.profile.name+')':''}
+  return `Nexus · отчёт за неделю ${D.fmt(wf)} — ${D.fmt(wt)}${S.profile.name?' ('+S.profile.name+')':''}
 Касаний: ${f.touches} из ${S.norms.week}
 Ответов: ${f.replies} (${pct(f.replies,f.touches)}%)
 Согласий на созвон: ${f.agreed}
@@ -335,7 +360,7 @@ ${next.length?next.map(e=>'• '+e.name+' — '+e.next.text+' ('+D.fmt(e.next.da
 /* ---------- Путь ---------- */
 function vPath(){
   const pm=programMonth(), cur=S.profile.role;
-  return `<header class="page-h"><div><h1>Путь продюсера</h1><p class="muted">Роли, этапы работы с экспертом и условия</p></div></header>
+  return `<header class="page-h"><div><h1>Путь в Nexus</h1><p class="muted">Роли, этапы работы с экспертом и условия</p></div></header>
   <section class="card hero"><div><small>Ты в программе</small><b>Месяц ${pm}</b></div><div><small>Наставнику</small><b>${pm===1?'0%':'40% с прибыли'}</b></div>
     <p class="muted sm">Первый месяц — учишься и ищешь эксперта, ничего не платишь. Со второго — 40% с прибыли. Нет прибыли — нет оплаты.</p></section>
   <section class="card"><h3>Лестница ролей</h3><div class="ladder">${ROLES.map(r=>`<div class="rung ${r.id===cur?'on':''}"><span class="ri">${r.icon}</span><div><b>${r.name}</b><p class="muted sm">${r.text}</p></div></div>`).join('')}</div></section>
@@ -344,6 +369,7 @@ function vPath(){
     return `<a class="jstep" href="#experts"><span class="jn">${i+1}</span><div><b>${j.title}</b><p class="muted sm">${j.text}</p></div>${chip(String(n),n?'good':'')}</a>`;}).join('')}</div></section>
   <section class="card"><h3>Кого выбирать</h3><ul class="ok">${CRITERIA.map(c=>`<li>${esc(c.label)}</li>`).join('')}</ul>
     <p class="muted sm">Где искать: ${CHANNELS_SEARCH.join(', ')}. Где писать: Telegram, VK, WhatsApp, MAX. Онлайн-контакт → договориться об офлайн-встрече.</p></section>
+  <section class="card"><h3>Достижения</h3><div class="badges">${badges().map(b=>`<div class="badge ${b.ok?'on':''}"><b>${b.i}</b><small>${b.t}</small></div>`).join('')}</div></section>
   <section class="card"><h3>Нормы</h3><div class="norms"><div><b>${S.norms.day}</b><small>касания в день</small></div><div><b>${S.norms.week}</b><small>в неделю (минимум)</small></div><div><b>${S.norms.month}</b><small>в месяц</small></div></div>
     <p class="muted sm">Почему не больше: не хватит ресурса вести диалог со всеми, пропадёт индивидуальность, эксперт почувствует рассылку.</p></section>`;
 }

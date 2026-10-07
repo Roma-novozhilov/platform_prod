@@ -3,18 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Продюсер — трекер запусков</title>
+<title>Nexus — трекер запусков</title>
 <meta name="description" content="Трекер экспертов, касаний, созвонов и задач для продюсеров">
-<meta name="theme-color" content="#4f46e5">
+<meta name="theme-color" content="#0b1020">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div id="splash" aria-hidden="true"><svg viewBox="0 0 512 512"><path class="e" d="M256 256L140 160"/><path class="e" d="M256 256L384 140"/><path class="e" d="M256 256L376 366"/><path class="e" d="M256 256L146 372"/><circle class="n" cx="140" cy="160" r="26"/><circle class="n" cx="384" cy="140" r="26"/><circle class="n" cx="376" cy="366" r="26"/><circle class="n" cx="146" cy="372" r="26"/><circle class="c" cx="256" cy="256" r="46"/></svg></div>
 <div class="shell">
   <aside class="side" aria-label="Навигация">
-    <div class="brand"><span class="logo">▲</span><b>Продюсер</b></div>
+    <div class="brand"><img class="logo" src="icons/icon.svg" alt=""><b>NEXUS</b></div>
     <nav>
       <a data-nav="today" href="#today"><span>🏠</span>Сегодня<em class="nav-badge" hidden></em></a>
       <a data-nav="experts" href="#experts"><span>👥</span>Эксперты</a>
@@ -42,5 +45,6 @@
 <script src="js/core.js"></script>
 <script src="js/views.js"></script>
 <script src="js/app.js"></script>
+<script>setTimeout(function(){var s=document.getElementById("splash");if(s)s.classList.add("hide")},900)</script>
 </body>
 </html>

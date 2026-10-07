@@ -1,12 +1,12 @@
 {
-  "name": "Продюсер — трекер запусков",
-  "short_name": "Продюсер",
+  "name": "Nexus — трекер запусков",
+  "short_name": "Nexus",
   "description": "Эксперты, касания, созвоны и задачи продюсера",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f6fa",
-  "theme_color": "#4f46e5",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
   "lang": "ru",
   "icons": [
     {"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"},

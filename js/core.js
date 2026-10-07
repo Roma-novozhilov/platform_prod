@@ -29,7 +29,7 @@ function freshState(){
     experts:[],
     tasks: STARTER_TASKS.map(t=>({id:uid(), title:t.title, note:t.note, due:D.add(D.today(),7), done:false, expertId:null})),
     callDraft:null,
-    theme:'auto',
+    theme:'dark',
     lastBackup:null
   };
 }
@@ -208,6 +208,27 @@ function stuckExperts(){
     D.diff(t, e.touches[e.touches.length-1].date)>=NORMS.followUpDays);
 }
 function programMonth(){ return Math.max(1, Math.floor(D.diff(D.today(), S.profile.startDate)/30)+1); }
+
+/* ---------- серия дней и значки ---------- */
+function streak(){
+  let d=D.today(), n=0;
+  if(countTouches(d,d)<S.norms.day) d=D.add(d,-1);   // сегодня ещё можно догнать
+  while(countTouches(d,d)>=S.norms.day){ n++; d=D.add(d,-1); }
+  return n;
+}
+function badges(){
+  const ex=S.experts, [wf,wt]=periodRange('week');
+  const maxStreak=(()=>{ const days=[...new Set(allTouches().map(t=>t.date))].sort(); let best=0,cur=0,prev=null;
+    days.forEach(d=>{ if(countTouches(d,d)>=S.norms.day){ cur = prev&&D.diff(d,prev)===1 ? cur+1 : 1; prev=d; best=Math.max(best,cur); } }); return best; })();
+  return [
+    {i:'✉️',t:'Первое касание',ok:allTouches().length>0},
+    {i:'💬',t:'Первый ответ',ok:ex.some(e=>e.repliedAt)},
+    {i:'📞',t:'Первый созвон',ok:ex.some(e=>e.callDoneAt)},
+    {i:'🤝',t:'Первый эксперт в работе',ok:ex.some(e=>e.activatedAt)},
+    {i:'🎯',t:'Неделя по норме',ok:countTouches(wf,wt)>=S.norms.week || maxStreak>=5},
+    {i:'🔥',t:'7 дней подряд',ok:maxStreak>=7}
+  ];
+}
 
 /* ---------- резервные копии ---------- */
 function exportJSON(){
